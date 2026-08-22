@@ -20,7 +20,7 @@ def get_ffme_returns():
     """
     Load the Fama-French data on returns of the top and bottom deciles by market cap."""
     me_m = pd.read_csv(
-        "../labs/data/Portfolios_Formed_on_ME_monthly_EW.csv",
+        "../data/Portfolios_Formed_on_ME_monthly_EW.csv",
         header=0,
         index_col=0,
         parse_dates=True,
