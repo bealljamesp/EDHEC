@@ -213,12 +213,12 @@ def plot_ef2(n_points, er, cov, style=".-"):
     return ef.plot.line(x="Volatility", y="Returns", style=style)
 
 
-def gmv(cov):
-    """
-    Returns the weights of the Global Minimum Variance portfolio given a covariance matrix.
-    """
-    n = cov.shape[0]
-    return msr(0, np.repeat(1, n), cov)
+# def gmv(cov):
+#     """
+#     Returns the weights of the Global Minimum Variance portfolio given a covariance matrix.
+#     """
+#     n = cov.shape[0]
+#     return msr(0, np.repeat(1, n), cov)
 
 
 def plot_ef(
@@ -356,6 +356,38 @@ def msr(risk_free_rate, er, cov):
         method="SLSQP",
         options={"disp": False},
         constraints=(weights_sum_to_1),
+        bounds=bounds,
+    )
+    return results.x
+
+
+def ew_weights(n):
+    """
+    Returns the weights of an equally weighted portfolio of n assets.
+    """
+    return np.repeat(1 / n, n)
+
+
+def gmv(cov):
+    """
+    Returns the weights of the Global Minimum Variance portfolio given a covariance matrix.
+    """
+    n = cov.shape[0]
+    # Initial guess: equal weights
+    init_guess = np.repeat(1 / n, n)
+    # Bounds: weights between 0 and 1 (no short selling) - adjust if your toolkit allows shorts
+    bounds = tuple((0.0, 1.0) for _ in range(n))
+    # Constraint: weights sum to 1
+    constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1}
+
+    # Minimize portfolio volatility
+    results = minimize(
+        portfolio_vol,
+        init_guess,
+        args=(cov,),
+        method="SLSQP",
+        options={"disp": False},
+        constraints=constraints,
         bounds=bounds,
     )
     return results.x
