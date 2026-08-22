@@ -213,11 +213,21 @@ def plot_ef2(n_points, er, cov, style=".-"):
     return ef.plot.line(x="Volatility", y="Returns", style=style)
 
 
+def gmv(cov):
+    """
+    Returns the weights of the Global Minimum Variance portfolio given a covariance matrix.
+    """
+    n = cov.shape[0]
+    return msr(0, np.repeat(1, n), cov)
+
+
 def plot_ef(
     n_points: int,
     er: np.ndarray,
     cov: np.ndarray,
     show_cml: bool = False,
+    show_ew: bool = False,
+    show_gmv: bool = False,
     style: str = ".-",
     risk_free_rate: float = 0.0,
 ):
@@ -237,6 +247,35 @@ def plot_ef(
     )
 
     ax = ef.plot.line(x="Volatility", y="Returns", style=style)
+
+    if show_gmv:
+        w_gmv = gmv(cov)
+        r_gmv = portfolio_return(w_gmv, er)
+        vol_gmv = portfolio_vol(w_gmv, cov)
+
+        ax.plot(
+            vol_gmv,
+            r_gmv,
+            color="midnightblue",
+            marker="o",
+            markersize=8,
+            label="GMV",
+        )
+
+    if show_ew:
+        n = er.shape[0]
+        w_ew = np.repeat(1 / n, n)
+        r_ew = portfolio_return(w_ew, er)
+        vol_ew = portfolio_vol(w_ew, cov)
+
+        ax.plot(
+            vol_ew,
+            r_ew,
+            color="goldenrod",
+            marker="o",
+            markersize=8,
+            label="Equal-Weighted",
+        )
 
     if show_cml:
         w_msr = msr(risk_free_rate, er, cov)
