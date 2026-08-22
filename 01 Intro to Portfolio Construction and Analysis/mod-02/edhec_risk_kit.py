@@ -36,7 +36,7 @@ def get_hfi_returns():
     Load the EDHEC Hedge Fund Index returns.
     """
     hfi = pd.read_csv(
-        "../labs/data/edhec-hedgefundindices.csv",
+        "../data/edhec-hedgefundindices.csv",
         header=0,
         index_col=0,
         parse_dates=True,
