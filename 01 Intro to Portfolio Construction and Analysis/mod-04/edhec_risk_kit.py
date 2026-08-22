@@ -407,3 +407,32 @@ def bond_cash_flows(maturity, principal, coupon_rate, coupons_per_year):
     cf[-1] += principal
 
     return pd.Series(cf, index=np.arange(1, n_periods + 1))
+
+
+def bond_price(maturity, principal, discount_rate, coupon_rate, coupons_per_year):
+    """
+    Computes the price of a bond that pays regular coupons until maturity.
+    discount_rate is the annual yield / discount rate (e.g., 0.05 for 5%).
+    """
+    if discount_rate <= 0:
+        raise ValueError("Discount rate must be strictly positive.")
+
+    cf = bond_cash_flows(maturity, principal, coupon_rate, coupons_per_year)
+    discount_rate_per_period = discount_rate / coupons_per_year
+    periods = np.arange(1, len(cf) + 1)
+
+    # Discount each cash flow back to present value
+    discounted_cf = cf / (1 + discount_rate_per_period) ** periods
+    return discounted_cf.sum()
+
+
+def macaulay_duration(flows, discount_rate_per_period):
+    """
+    Computes the Macaulay Duration of a sequence of cash flows,
+    expressed in periods.
+    """
+    discounted_flows = flows / (1 + discount_rate_per_period) ** np.arange(
+        1, len(flows) + 1
+    )
+    weights = discounted_flows / discounted_flows.sum()
+    return np.sum(weights * np.arange(1, len(flows) + 1))
